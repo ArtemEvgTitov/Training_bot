@@ -43,7 +43,6 @@ def save():
 @bot.message_handler(commands=['start'])
 def start(message):
 
-    load_hello()
     load()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button = types.KeyboardButton('Приветики')
@@ -68,7 +67,7 @@ def help_me(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-
+    load_hello()
     if is_part_in_list(message.text, hello_text):
         random_photo = random.choice(hello)
         bot.send_photo(
