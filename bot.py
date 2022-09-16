@@ -1,8 +1,5 @@
-import telebot
+import telebot, random, json, re
 from telebot import types
-import random
-import json
-import re
 from settings import BOT_TOKEN
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -46,6 +43,7 @@ def start(message):
     load()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button = types.KeyboardButton('Приветики')
+    buttonSort = types.KeyboardButton('Сортировка фильмотеки')
     buttonA = types.KeyboardButton('Добавить фильм в список')
     buttonB = types.KeyboardButton('Фильмотека')
     buttonC = types.KeyboardButton('Случайное кино на вечер')
@@ -54,6 +52,7 @@ def start(message):
     markup.row(button)
     markup.row(buttonA, buttonB)
     markup.row(buttonC, buttonD)
+    markup.row(buttonSort)
     bot.send_message(message.chat.id, 'Слушаю 🤖', reply_markup=markup)
 
 
@@ -65,6 +64,8 @@ def help_me(message):
         message.chat.id, 'Все мои умения внизу ⬇️')
 
 
+
+
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
     load_hello()
@@ -72,6 +73,14 @@ def get_text_messages(message):
         random_photo = random.choice(hello)
         bot.send_photo(
             message.chat.id, photo=f'{random_photo}')
+    elif message.text == "Сортировка фильмотеки":
+        global films
+        with open("films.json", "r", encoding="utf-8") as fh:
+            films = json.load(fh)
+        films.sort()
+        with open("films.json", "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(films, ensure_ascii=False))
+        bot.send_message(message.chat.id, "Фильмотека отсортирована ❤️")
     elif message.text == "Фильмотека":
         load()
         bot.send_message(message.chat.id, "Вот список фильмов ⬇️")
