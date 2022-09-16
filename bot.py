@@ -1,4 +1,7 @@
-import telebot, random, json, re
+import telebot
+import random
+import json
+import re
 from telebot import types
 from settings import BOT_TOKEN
 
@@ -37,6 +40,15 @@ def save():
     print("Наша фильмотека была успешно сохранена в файле films.json")
 
 
+def sort_films():
+    global films
+    with open("films.json", "r", encoding="utf-8") as fh:
+        films = json.load(fh)
+    films.sort()
+    with open("films.json", "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(films, ensure_ascii=False))
+
+
 @bot.message_handler(commands=['start'])
 def start(message):
 
@@ -64,8 +76,6 @@ def help_me(message):
         message.chat.id, 'Все мои умения внизу ⬇️')
 
 
-
-
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
     load_hello()
@@ -74,12 +84,7 @@ def get_text_messages(message):
         bot.send_photo(
             message.chat.id, photo=f'{random_photo}')
     elif message.text == "Сортировка фильмотеки":
-        global films
-        with open("films.json", "r", encoding="utf-8") as fh:
-            films = json.load(fh)
-        films.sort()
-        with open("films.json", "w", encoding="utf-8") as fh:
-            fh.write(json.dumps(films, ensure_ascii=False))
+        sort_films()
         bot.send_message(message.chat.id, "Фильмотека отсортирована ❤️")
     elif message.text == "Фильмотека":
         load()
@@ -109,10 +114,15 @@ def get_text_messages(message):
     elif 'Добавь ' in message.text:
         load()
         message.text = re.sub('Добавь ', '', message.text)
-        films.append(message.text)
-        save()
-        bot.send_message(
-            message.chat.id, f'✅ Фильм "{message.text}" добавлен в список')
+        if message.text in films:
+            bot.send_message(message.chat.id, '⚠️ Этот фильм уже есть в списке')
+        else:
+            films.append(message.text)
+            save()
+            sort_films()
+            bot.send_message(
+                message.chat.id, f'✅ Фильм "{message.text}" добавлен в список')
+            bot.send_message(message.chat.id, "Фильмотека отсортирована ❤️")
     elif message.text == 'Удалить фильм из списка':
         bot.send_message(message.chat.id, 'Напишите мне название фильма')
     elif message.text in films:
