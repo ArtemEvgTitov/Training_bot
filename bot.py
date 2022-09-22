@@ -54,17 +54,15 @@ def start(message):
 
     load()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = types.KeyboardButton('Приветики')
-    buttonSort = types.KeyboardButton('Сортировка фильмотеки')
-    buttonA = types.KeyboardButton('Добавить фильм в список')
-    buttonB = types.KeyboardButton('Фильмотека')
-    buttonC = types.KeyboardButton('Случайное кино на вечер')
-    buttonD = types.KeyboardButton('Удалить фильм из списка')
+    buttonHi = types.KeyboardButton('Приветики')
+    buttonAdd = types.KeyboardButton('Добавить фильм в список')
+    buttonFilms = types.KeyboardButton('Фильмотека')
+    buttonRand = types.KeyboardButton('Случайное кино на вечер')
+    buttonDel = types.KeyboardButton('Удалить фильм из списка')
 
-    markup.row(button)
-    markup.row(buttonA, buttonB)
-    markup.row(buttonC, buttonD)
-    markup.row(buttonSort)
+    markup.row(buttonHi)
+    markup.row(buttonAdd, buttonFilms)
+    markup.row(buttonRand, buttonDel)
     bot.send_message(message.chat.id, 'Слушаю 🤖', reply_markup=markup)
 
 
@@ -83,9 +81,6 @@ def get_text_messages(message):
         random_photo = random.choice(hello)
         bot.send_photo(
             message.chat.id, photo=f'{random_photo}')
-    elif message.text == "Сортировка фильмотеки":
-        sort_films()
-        bot.send_message(message.chat.id, "Фильмотека отсортирована ❤️")
     elif message.text == "Фильмотека":
         load()
         bot.send_message(message.chat.id, "Вот список фильмов ⬇️")
@@ -115,7 +110,8 @@ def get_text_messages(message):
         load()
         message.text = re.sub('Добавь ', '', message.text)
         if message.text in films:
-            bot.send_message(message.chat.id, '⚠️ Этот фильм уже есть в списке')
+            bot.send_message(
+                message.chat.id, '⚠️ Этот фильм уже есть в списке')
         else:
             films.append(message.text)
             save()
